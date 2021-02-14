@@ -2,6 +2,7 @@
 from enum import Enum
 import re
 import argparse
+import sys
 
 
 class MatchedLineFormat(Enum):
@@ -178,15 +179,14 @@ def find_pattern_in_string(input_string, pattern):
     return match_intervals
 
 
-def find_pattern_in_file(filename, pattern, print_line_format):
+def find_pattern_in_files(files, pattern, print_line_format):
     """
-    Search for a pattern in a file and print the matching lines using the format
-    specified in print_line_format
+    Search for a pattern in a list of files (or in stdin if none is provided) and print the
+    matching lines using the format specified in print_line_format
 
-    :param filename: File to read
+    :param files: Files to be processed. stdin will be used if none is provided
     :param pattern: Regular expression with the pattern to search
     :param print_line_format: Format to use when printing the matching lines
-    :return:
     """
     factory = MatchedLineFormatterFactory()
 
@@ -196,15 +196,21 @@ def find_pattern_in_file(filename, pattern, print_line_format):
     factory.register_format(MatchedLineFormat.MACHINE, MachineReadableMatchedLineFormatter)
     line_formatter = factory.get_formatter(print_line_format)
 
-    cre = re.compile(pattern)
-    with open(filename, 'r') as f:
-        for line_number, line in enumerate(f, start=1):
-            stripped_line = line.strip()
-            match_intervals = find_pattern_in_string(stripped_line, pattern)
+    if files is not None:
+        for filename in files:
+            with open(filename, 'r') as f:
+                for line_number, line in enumerate(f, start=1):
+                    match_intervals = find_pattern_in_string(line.strip(), pattern)
+                    if len(match_intervals) > 0:
+                        print(line_formatter.format(filename, line_number, line.strip(), match_intervals))
+            f.close()
+    else:
+        line_number = 0
+        for line in sys.stdin:
+            line_number += 1
+            match_intervals = find_pattern_in_string(line.strip(), pattern)
             if len(match_intervals) > 0:
-                print(line_formatter.format(filename, line_number, stripped_line, match_intervals))
-
-    f.close()
+                print(line_formatter.format("-", line_number, line.strip(), match_intervals))
 
 
 if __name__ == '__main__':
@@ -213,7 +219,7 @@ if __name__ == '__main__':
 
     # Add the arguments to the parser
     ap.add_argument("-r", "--regex", required=True, help="regexp to search")
-    ap.add_argument("-f", "--files", required=True, help="files where to search")
+    ap.add_argument("-f", "--files", metavar='FILE', nargs='*', help='files to read, if empty, stdin is used')
 
     # Create a group for mutually exclusive arguments
     group = ap.add_mutually_exclusive_group()
@@ -224,10 +230,10 @@ if __name__ == '__main__':
     args = ap.parse_args()
 
     if args.underscore:
-        find_pattern_in_file(args.files, args.regex, MatchedLineFormat.UNDERSCORE)
+        find_pattern_in_files(args.files, args.regex, MatchedLineFormat.UNDERSCORE)
     elif args.color:
-        find_pattern_in_file(args.files, args.regex, MatchedLineFormat.COLOR)
+        find_pattern_in_files(args.files, args.regex, MatchedLineFormat.COLOR)
     elif args.machine:
-        find_pattern_in_file(args.files, args.regex, MatchedLineFormat.MACHINE)
+        find_pattern_in_files(args.files, args.regex, MatchedLineFormat.MACHINE)
     else:
-        find_pattern_in_file(args.files, args.regex, MatchedLineFormat.DEFAULT)
+        find_pattern_in_files(args.files, args.regex, MatchedLineFormat.DEFAULT)
