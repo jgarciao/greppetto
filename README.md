@@ -1,5 +1,5 @@
 # greppetto
-A simple python script to search patterns in files and print the matching lines using different formats.
+A simple python script to search for patterns in files and print the matching lines using different formats.
 
 # Running the script
 ```
