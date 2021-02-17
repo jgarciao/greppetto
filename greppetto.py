@@ -170,6 +170,9 @@ def find_pattern_in_string(input_string, pattern):
     :param pattern: Regular expression with the pattern to search
     :return: list of intervals (match start, match end) of input_string where the pattern has been found.
     """
+    if not pattern:
+        raise ValueError("pattern can't be empty")
+
     match_intervals = []
     cre = re.compile(pattern)
 
