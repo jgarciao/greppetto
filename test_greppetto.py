@@ -10,7 +10,7 @@ class Test(TestCase):
         Test find pattern in string when string is empty
         """
 
-        # GIVEN input_line with one occurrence of the pattern
+        # GIVEN empty input_line and one pattern
         input_line = ""
         pattern = "mypattern"
         expected_intervals = []
@@ -21,7 +21,7 @@ class Test(TestCase):
         # THEN returned matches are the expected
         self.assertEqual(match_intervals, expected_intervals, "Should be " + str(expected_intervals))
 
-    def test_find_pattern_in_string_with_empty_pattern(self):
+    def test_find_pattern_in_string_with_empty_pattern_raises_error(self):
         """
         Test find pattern in string when pattern is empty
         """
@@ -36,7 +36,7 @@ class Test(TestCase):
 
     def test_find_pattern_in_string_with_1_occurrences_of_pattern(self):
         """
-        Test find pattern in string when the string has two occurrences of the pattern
+        Test find pattern in string when the string has one occurrences of the pattern
         """
 
         # GIVEN input_line with one occurrence of the pattern
@@ -135,7 +135,7 @@ class Test(TestCase):
 
     def test_machine_matched_line_formatter(self):
         """
-        Test MachineReadableMatchedLineFormatter with an input_line that contains the pattern
+        Test MachineReadableMatchedLineFormatter with an input_line that contains the pattern twice
         """
 
         # GIVEN input_line with one occurrence of the pattern
@@ -143,7 +143,8 @@ class Test(TestCase):
         line_number = "1"
         input_line = "text mypattern text mypattern"
         match_intervals = [(5, 14), (20, 29)]
-        expected_formatted_line = "myfilename:1:5:mypattern\nmyfilename:1:20:mypattern"
+        expected_formatted_line = "myfilename:1:5:mypattern\n" + \
+                                  "myfilename:1:20:mypattern"
 
         # WHEN find pattern in input_line
         factory = greppetto.MatchedLineFormatterFactory()
