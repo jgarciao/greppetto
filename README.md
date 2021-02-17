@@ -32,3 +32,10 @@ cat /var/log/dnf.log | ./greppetto.py  -r INFO -u
 # Search for DEBUG in a file and print the matching lines with a machine readable format:
 ./greppetto.py  -r DEBUG -f /var/log/dnf.log -m
 ```
+
+# Testing the script
+
+This script has some unit test that can be run with this command
+```
+python test_greppetto.py
+```
